@@ -1,8 +1,6 @@
-﻿#pragma warning disable S112 // General exceptions should never be thrown
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using NUglify;
@@ -10,18 +8,15 @@ using OutputColorizer;
 
 namespace StaticSiteGenerator.Handlers
 {
-    public interface IHtmlHandler
-    {
-        void Process();
-    }
-
-    public class HtmlHandler : IHtmlHandler
+    public class HtmlHandler : IFileHandler
     {
         private readonly AppSettings appSettings;
+        private readonly IHandlerUtility util;
 
-        public HtmlHandler(AppSettings appSettings)
+        public HtmlHandler(AppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
+            this.util = util;
         }
 
         public void Process()
@@ -41,10 +36,7 @@ namespace StaticSiteGenerator.Handlers
             }
 
             // get files
-            var inFiles = Directory.GetFiles(appSettings.Input, "*.htm", SearchOption.AllDirectories)
-                                   .Select(x => new FileInfo(x))
-                                   .Where(x => !x.Name.StartsWith("_"))
-                                   .ToList();
+            var inFiles = util.GetFiles("htm", "html");
             Colorizer.WriteLine($"  Processing [White!{inFiles.Count}] files...");
 
             foreach (var inFile in inFiles)
@@ -78,7 +70,7 @@ namespace StaticSiteGenerator.Handlers
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Error processing file: {inFile.FullName.Replace(appSettings.Input, ".")}", ex);
+                    throw util.ProcessingException(inFile, ex);
                 }
             }
         }

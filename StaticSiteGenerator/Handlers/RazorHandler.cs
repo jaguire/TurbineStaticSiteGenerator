@@ -1,8 +1,6 @@
-﻿#pragma warning disable S112 // General exceptions should never be thrown
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using NUglify;
 using OutputColorizer;
@@ -11,18 +9,15 @@ using RazorEngine.Templating;
 
 namespace StaticSiteGenerator.Handlers
 {
-    public interface IRazorHandler
-    {
-        void Process();
-    }
-
-    public class RazorHandler : IRazorHandler
+    public class RazorHandler : IFileHandler
     {
         private readonly AppSettings appSettings;
+        private readonly IHandlerUtility util;
 
-        public RazorHandler(AppSettings appSettings)
+        public RazorHandler(AppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
+            this.util = util;
         }
 
         public void Process()
@@ -42,10 +37,7 @@ namespace StaticSiteGenerator.Handlers
             }
 
             // get files
-            var inFiles = Directory.GetFiles(appSettings.Input, "*.cshtml", SearchOption.AllDirectories)
-                                   .Select(x => new FileInfo(x))
-                                   .Where(x => !x.Name.StartsWith("_"))
-                                   .ToList();
+            var inFiles = util.GetFiles("cshtml");
             Colorizer.WriteLine($"  Processing [White!{inFiles.Count}] files...");
 
             // create razor engine
@@ -74,7 +66,7 @@ namespace StaticSiteGenerator.Handlers
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Error processing file: {inFile.FullName.Replace(appSettings.Input, ".")}", ex);
+                    throw util.ProcessingException(inFile, ex);
                 }
             }
         }

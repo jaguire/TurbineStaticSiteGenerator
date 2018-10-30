@@ -1,37 +1,27 @@
-﻿#pragma warning disable S112 // General exceptions should never be thrown
-using System;
+﻿using System;
 using System.IO;
-using System.Linq;
 using NUglify;
 using OutputColorizer;
 
 namespace StaticSiteGenerator.Handlers
 {
-    public interface ICssMinifyHandler
-    {
-        void Process();
-    }
-
-    public class CssMinifyHandler : ICssMinifyHandler
+    public class StyleHandler : IFileHandler
     {
         private readonly AppSettings appSettings;
+        private readonly IHandlerUtility util;
 
-        public CssMinifyHandler(AppSettings appSettings)
+        public StyleHandler(AppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
+            this.util = util;
         }
 
         public void Process()
         {
-            if (!appSettings.MinifyCss)
-                return;
             Console.WriteLine("Css Minify");
 
             // get files
-            var inFiles = Directory.GetFiles(appSettings.Input, "*.css", SearchOption.AllDirectories)
-                                   .Select(x => new FileInfo(x))
-                                   .Where(x => !x.Name.StartsWith("_"))
-                                   .ToList();
+            var inFiles = util.GetFiles("css");
             Colorizer.WriteLine($"  Processing [White!{inFiles.Count}] files...");
 
             foreach (var inFile in inFiles)
@@ -40,18 +30,21 @@ namespace StaticSiteGenerator.Handlers
                     Colorizer.WriteLine($"    [DarkGray!{inFile.FullName.Replace(appSettings.Input, ".")}]");
                 try
                 {
-                    // minify
+                    // process
                     var css = File.ReadAllText(inFile.FullName);
-                    var result = Uglify.Css(css);
+
+                    // minify
+                    if (appSettings.MinifyCss)
+                        css = Uglify.Css(css).Code;
 
                     // save result
                     var outFile = new FileInfo(inFile.FullName.Replace(appSettings.Input, appSettings.Output));
                     outFile.Directory?.Create();
-                    File.WriteAllText(outFile.FullName, result.Code);
+                    File.WriteAllText(outFile.FullName, css);
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Error processing file: {inFile.FullName.Replace(appSettings.Input, ".")}", ex);
+                    throw util.ProcessingException(inFile, ex);
                 }
             }
         }

@@ -7,7 +7,7 @@ namespace StaticSiteGenerator
 {
     public static class AppSettingsConfig
     {
-        public static AppSettings GetAppSettings()
+        public static AppSettings GetAppSettings(bool isWatch)
         {
             Colorizer.WriteLine("Configuration");
             var appSettings = File.Exists("turbine.json")
@@ -25,12 +25,22 @@ namespace StaticSiteGenerator
             appSettings.Input = input.FullName;
 
             // output
-            var output = new DirectoryInfo(appSettings.Output);
-            Colorizer.WriteLine($"  Output Path: [DarkCyan!{output.FullName}]");
+            DirectoryInfo output;
+            if (isWatch)
+            {
+                output = new DirectoryInfo(appSettings.Watch);
+                appSettings.Output = appSettings.Watch = output.FullName;
+                Colorizer.WriteLine($"  Watch Path: [DarkCyan!{output.FullName}]");
+            }
+            else
+            {
+                output = new DirectoryInfo(appSettings.Output);
+                appSettings.Output = output.FullName;
+                Colorizer.WriteLine($"  Output Path: [DarkCyan!{output.FullName}]");
+            }
             if (output.Exists)
                 output.Delete(true);
             output.Create();
-            appSettings.Output = output.FullName;
 
             return appSettings;
         }

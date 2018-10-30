@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using OutputColorizer;
-using StaticSiteGenerator.Handlers;
 
 namespace StaticSiteGenerator
 {
@@ -16,27 +16,23 @@ namespace StaticSiteGenerator
         private const int RollingDelayInSeconds = 2;
 
         private readonly AppSettings appSettings;
-        private readonly IRazorHandler razor;
-        private readonly IHtmlHandler html;
-        private readonly IJavascriptHandler javascript;
-        private readonly ISassHandler sass;
-        private readonly ICssMinifyHandler cssMinify;
+        private readonly IEnumerable<IFileHandler> fileHandlers;
+        private readonly IWebServer webServer;
         private Timer watchTimer;
 
-        public Program(AppSettings appSettings, IRazorHandler razor, IHtmlHandler html, IJavascriptHandler javascript, ISassHandler sass, ICssMinifyHandler cssMinify)
+        public Program(AppSettings appSettings, IEnumerable<IFileHandler> fileHandlers, IWebServer webServer)
         {
             this.appSettings = appSettings;
-            this.razor = razor;
-            this.html = html;
-            this.javascript = javascript;
-            this.sass = sass;
-            this.cssMinify = cssMinify;
+            this.fileHandlers = fileHandlers;
+            this.webServer = webServer;
         }
 
         public void Run(bool isWatch)
         {
             try
             {
+                Process();
+
                 if (isWatch)
                 {
                     watchTimer = new Timer(OnWatchTimerCallback, null, Timeout.Infinite, Timeout.Infinite);
@@ -52,20 +48,29 @@ namespace StaticSiteGenerator
                     watcher.Renamed += FileChanged;
                     watcher.Error += FileWatcherError;
                     watcher.EnableRaisingEvents = true;
+
                     Colorizer.WriteLine($"[Green!Watch mode started ({RollingDelayInSeconds} second delay)]");
+
+                    webServer.Start();
                 }
                 else
                 {
-                    Process();
-                    Colorizer.WriteLine("[Green!Competed]");
+                    Colorizer.WriteLine("[Green!Completed]");
                 }
             }
             catch (Exception ex)
             {
-                Colorizer.WriteLine("[Red!Error]");
-                Console.WriteLine($"  {ex.Message}");
+                Console.WriteLine();
+                Colorizer.WriteLine("[Red!ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR]");
+                Console.WriteLine();
+                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine($"{ex.StackTrace}");
                 if (ex.InnerException != null)
-                    Console.WriteLine($"  {ex.InnerException.Message}");
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"{ex.InnerException.Message}");
+                    Console.WriteLine($"{ex.InnerException.StackTrace}");
+                }
             }
 #if DEBUG
             Console.ReadKey();
@@ -75,11 +80,8 @@ namespace StaticSiteGenerator
         private void Process()
         {
             Colorizer.WriteLine("[Yellow!Processing...]");
-            razor.Process();
-            html.Process();
-            javascript.Process();
-            sass.Process();
-            cssMinify.Process();
+            foreach (var handler in fileHandlers)
+                handler.Process();
         }
 
         private void OnWatchTimerCallback(object state)

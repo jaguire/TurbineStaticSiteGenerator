@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Security;
 using System.Security.Permissions;
 using System.Security.Policy;
+using System.Threading;
 using Autofac;
 using Fclp;
 using OutputColorizer;
@@ -13,14 +14,18 @@ namespace StaticSiteGenerator
     {
         private static bool isWatch;
 
+        public static ManualResetEvent Exit { get; private set; }
+
         private static int Main()
         {
+            Exit = CreateExitEvent();
             if (AppDomain.CurrentDomain.IsDefaultAppDomain())
                 return CreateCustomAppDomainForRazorEngine();
 
             DisplayLogo();
+
             ParseCommandLineArguments();
-            var appSettings = AppSettingsConfig.GetAppSettings();
+            var appSettings = AppSettingsConfig.GetAppSettings(isWatch);
             var container = ContainerConfig.GetContainer(appSettings);
             container.Resolve<IProgram>().Run(isWatch);
             return 0;
@@ -59,6 +64,18 @@ namespace StaticSiteGenerator
             var exitCode = domain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location);
             AppDomain.Unload(domain);
             return exitCode;
+        }
+
+        private static ManualResetEvent CreateExitEvent()
+        {
+            var exit = new ManualResetEvent(false);
+            Console.CancelKeyPress += (sender, eventArgs) =>
+            {
+                Colorizer.WriteLine("[Yellow!Turbine stopped]");
+                eventArgs.Cancel = true;
+                exit.Set();
+            };
+            return exit;
         }
     }
 }

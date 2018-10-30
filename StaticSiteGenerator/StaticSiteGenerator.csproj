@@ -90,17 +90,23 @@
       <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.6\lib\net45\System.Web.Razor.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AppSettings.cs" />
     <Compile Include="App_Start\AppSettingsConfig.cs" />
     <Compile Include="App_Start\ContainerConfig.cs" />
     <Compile Include="App_Start\Startup.cs" />
-    <Compile Include="Handlers\CssMinifyHandler.cs" />
+    <Compile Include="HandlerUtility.cs" />
+    <Compile Include="IFileHandler.cs" />
+    <Compile Include="Handlers\StaticFileHandler.cs" />
+    <Compile Include="Handlers\StyleHandler.cs" />
     <Compile Include="Handlers\JavascriptHandler.cs" />
     <Compile Include="Handlers\RazorHandler.cs" />
     <Compile Include="Handlers\HtmlHandler.cs" />
     <Compile Include="Handlers\SassHandler.cs" />
+    <Compile Include="WebServer.cs" />
+    <Compile Include="Nano.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Handlers\Razor\SupportTemplateBase.cs" />
