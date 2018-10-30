@@ -1,0 +1,1 @@
+"use strict";function partial(){console.log("this is a test.")}function test(){console.log("this is a test.")}

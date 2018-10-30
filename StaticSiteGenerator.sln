@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticSiteGenerator", "StaticSiteGenerator\StaticSiteGenerator.csproj", "{B31B7F15-C2C5-440F-BFCB-F35A2C0750BA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{690A36EF-9587-47B0-A362-33838F8F083F}"
+	ProjectSection(SolutionItems) = preProject
+		StyleCop.ruleset = StyleCop.ruleset
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B31B7F15-C2C5-440F-BFCB-F35A2C0750BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B31B7F15-C2C5-440F-BFCB-F35A2C0750BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B31B7F15-C2C5-440F-BFCB-F35A2C0750BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B31B7F15-C2C5-440F-BFCB-F35A2C0750BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1B04A03D-73A3-4145-8960-2EDAA8D4A87E}
+	EndGlobalSection
+EndGlobal
