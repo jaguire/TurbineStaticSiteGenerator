@@ -18,7 +18,7 @@ namespace StaticSiteGenerator.Handlers
 
         public void Process()
         {
-            Console.WriteLine("Css Minify");
+            Console.WriteLine("Styles");
 
             // get files
             var inFiles = util.GetFiles("css");
@@ -34,7 +34,7 @@ namespace StaticSiteGenerator.Handlers
                     var css = File.ReadAllText(inFile.FullName);
 
                     // minify
-                    if (appSettings.MinifyCss)
+                    if (appSettings.MinifyCss && !inFile.Name.ToLowerInvariant().EndsWith(".min.css"))
                         css = Uglify.Css(css).Code;
 
                     // save result

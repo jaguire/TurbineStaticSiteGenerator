@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using OutputColorizer;
 
 namespace StaticSiteGenerator.Handlers
@@ -21,9 +22,13 @@ namespace StaticSiteGenerator.Handlers
             Console.WriteLine("Static Files");
 
             // get files
-            var extensions = new List<string> { "ico", "jpg", "jpeg", "gif", "png", "txt" };
-            extensions.AddRange(appSettings.AdditionalStaticFiles);
+            var extensions = new List<string> { "jpg", "jpeg", "gif", "png", "ico", "txt", "xml", "pdf" };
+            extensions.AddRange(appSettings.AdditionalStaticFiles ?? new string[0]);
             var inFiles = util.GetFiles(extensions.ToArray());
+            inFiles.AddRange(Directory.EnumerateFiles(appSettings.Input, "*.", SearchOption.AllDirectories)
+                                      .Where(x => Path.GetFileName(x)?.StartsWith("_") == false)
+                                      .Select(x => new FileInfo(x)));
+
             Colorizer.WriteLine($"  Processing [White!{inFiles.Count}] files...");
 
             foreach (var inFile in inFiles)

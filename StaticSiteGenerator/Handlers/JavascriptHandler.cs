@@ -35,7 +35,7 @@ namespace StaticSiteGenerator.Handlers
                     var js = ProcessFile(inFile);
 
                     // minify
-                    if (appSettings.MinifyJs)
+                    if (appSettings.MinifyJs && !inFile.Name.ToLowerInvariant().EndsWith(".min.js"))
                         js = Uglify.Js(js).Code;
 
                     // save result
