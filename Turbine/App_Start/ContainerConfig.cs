@@ -1,17 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Autofac;
-using StaticSiteGenerator.Handlers;
+using CommandLine;
 
-namespace StaticSiteGenerator
+namespace Turbine
 {
     public static class ContainerConfig
     {
-        public static IContainer GetContainer(AppSettings appSettings)
+        public static IContainer GetContainer()
         {
             var builder = new ContainerBuilder();
-
-            // app settings
-            builder.RegisterInstance(appSettings);
 
             // handlers
             builder.RegisterAssemblyTypes(typeof(Startup).Assembly)
@@ -22,6 +20,14 @@ namespace StaticSiteGenerator
             builder.RegisterAssemblyTypes(typeof(Startup).Assembly)
                    .Where(t => t.IsClass && t.GetInterfaces().Any(i => i.Name == $"I{t.Name}"))
                    .As(t => t.GetInterfaces().First(i => i.Name == $"I{t.Name}"));
+
+            // Command line options
+            Parser.Default.ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs())
+                  .WithParsed(options => builder.RegisterInstance(options).As<ICommandLineOptions>())
+                  .WithNotParsed(x => Environment.Exit(0));
+
+            // app settings
+            builder.Register(c => c.Resolve<IAppSettingsManager>().GetAppSettings()).InstancePerLifetimeScope();
 
             return builder.Build();
         }

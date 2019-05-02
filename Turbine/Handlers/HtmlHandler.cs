@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using NUglify;
 using OutputColorizer;
+using YamlDotNet.Serialization;
 
-namespace StaticSiteGenerator.Handlers
+namespace Turbine.Handlers
 {
     public class HtmlHandler : IFileHandler
     {
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
         private readonly IHandlerUtility util;
 
-        public HtmlHandler(AppSettings appSettings, IHandlerUtility util)
+        public HtmlHandler(IAppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
             this.util = util;
@@ -25,11 +25,11 @@ namespace StaticSiteGenerator.Handlers
 
             // load metadata
             var siteMeta = new Dictionary<string, object>();
-            var metaFile = new FileInfo($"{appSettings.Input}/shared/meta.json");
+            var metaFile = new FileInfo($"{appSettings.Input}/shared/meta.yaml");
             if (metaFile.Exists)
             {
                 Colorizer.WriteLine($"  Meta: [DarkCyan!{metaFile.FullName.Replace(appSettings.Input, ".")}]");
-                siteMeta = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(metaFile.FullName));
+                siteMeta = new Deserializer().Deserialize<Dictionary<string, object>>(File.ReadAllText(metaFile.FullName));
                 if (appSettings.Verbose)
                     foreach (var m in siteMeta)
                         Colorizer.WriteLine($"    [DarkGray!{m.Key} = \"{m.Value}\"]");
@@ -51,15 +51,20 @@ namespace StaticSiteGenerator.Handlers
                     // separate page meta
                     var separator = new[] { $"{Environment.NewLine}---{Environment.NewLine}" };
                     var parts = contents.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                    var meta = parts.Length == 1 ? "{}" : parts[0];
+                    var meta = parts.Length == 1 ? string.Empty : parts[0];
                     var html = parts.Length == 1 ? parts[0] : parts[1];
 
                     // inject metadata
-                    var pageMeta = JsonConvert.DeserializeObject<Dictionary<string, object>>(meta);
-                    foreach (var m in pageMeta)
-                        html = html.Replace($"{{{{ {m.Key} }}}}", m.Value.ToString());
+                    if (!string.IsNullOrEmpty(meta))
+                    {
+                        var pageMeta = new Deserializer().Deserialize<Dictionary<string, object>>(meta);
+                        foreach (var m in pageMeta)
+                            html = html.Replace($"{{{{ {m.Key} }}}}", m.Value.ToString());
+                    }
                     foreach (var m in siteMeta)
                         html = html.Replace($"{{{{ {m.Key} }}}}", m.Value.ToString());
+
+                    // minify
                     if (appSettings.MinifyHtml)
                         html = Uglify.Html(html).Code;
 

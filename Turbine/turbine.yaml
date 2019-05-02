@@ -1,0 +1,9 @@
+﻿Input: "../../../example/input"
+Output: "../../../example/output"
+ScssOutput: compressed # expanded, nested, compact, compressed
+MinifyHtml: true
+MinifyCss: true
+MinifyJs: true
+Verbose: true
+AdditionalStaticFiles:
+- dat

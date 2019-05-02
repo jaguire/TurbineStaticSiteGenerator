@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace StaticSiteGenerator
+namespace Turbine
 {
     public interface IHandlerUtility
     {
@@ -13,9 +13,9 @@ namespace StaticSiteGenerator
 
     public class HandlerUtility : IHandlerUtility
     {
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
 
-        public HandlerUtility(AppSettings appSettings)
+        public HandlerUtility(IAppSettings appSettings)
         {
             this.appSettings = appSettings;
         }

@@ -1,4 +1,4 @@
-﻿namespace StaticSiteGenerator
+﻿namespace Turbine
 {
     public interface IFileHandler
     {

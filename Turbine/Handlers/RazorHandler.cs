@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
 using NUglify;
 using OutputColorizer;
 using RazorEngine.Configuration;
 using RazorEngine.Templating;
+using YamlDotNet.Serialization;
 
-namespace StaticSiteGenerator.Handlers
+namespace Turbine.Handlers
 {
     public class RazorHandler : IFileHandler
     {
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
         private readonly IHandlerUtility util;
 
-        public RazorHandler(AppSettings appSettings, IHandlerUtility util)
+        public RazorHandler(IAppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
             this.util = util;
@@ -26,11 +26,11 @@ namespace StaticSiteGenerator.Handlers
 
             // metadata
             var siteMeta = new Dictionary<string, object>();
-            var metaFile = new FileInfo($"{appSettings.Input}/shared/meta.json");
+            var metaFile = new FileInfo($"{appSettings.Input}/shared/meta.yaml");
             if (metaFile.Exists)
             {
                 Colorizer.WriteLine($"  Meta: [DarkCyan!{metaFile.FullName.Replace(appSettings.Input, ".")}]");
-                siteMeta = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(metaFile.FullName));
+                siteMeta = new Deserializer().Deserialize<Dictionary<string, object>>(File.ReadAllText(metaFile.FullName));
                 if (appSettings.Verbose)
                     foreach (var m in siteMeta)
                         Colorizer.WriteLine($"    [DarkGray!{m.Key} = \"{m.Value}\"]");
@@ -44,7 +44,7 @@ namespace StaticSiteGenerator.Handlers
             var razor = RazorEngineService.Create(new TemplateServiceConfiguration
             {
                 ////BaseTemplateType = typeof(SupportTemplateBase<>),
-                TemplateManager = new ResolvePathTemplateManager(new[] { $"{appSettings.Input}/shared" })
+                TemplateManager = new ResolvePathTemplateManager(new[] { $"{appSettings.Input}/shared" }),
             });
             foreach (var inFile in inFiles)
             {

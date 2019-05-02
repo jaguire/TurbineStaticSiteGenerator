@@ -4,36 +4,36 @@ using System.IO;
 using System.Threading;
 using OutputColorizer;
 
-namespace StaticSiteGenerator
+namespace Turbine
 {
     public interface IProgram
     {
-        void Run(bool isWatch);
+        void Run();
     }
 
     public class Program : IProgram
     {
         private const int RollingDelayInSeconds = 2;
 
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
         private readonly IEnumerable<IFileHandler> fileHandlers;
         private readonly IWebServer webServer;
         private Timer watchTimer;
 
-        public Program(AppSettings appSettings, IEnumerable<IFileHandler> fileHandlers, IWebServer webServer)
+        public Program(IAppSettings appSettings, IEnumerable<IFileHandler> fileHandlers, IWebServer webServer)
         {
             this.appSettings = appSettings;
             this.fileHandlers = fileHandlers;
             this.webServer = webServer;
         }
 
-        public void Run(bool isWatch)
+        public void Run()
         {
             try
             {
                 Process();
 
-                if (isWatch)
+                if (appSettings.Watch)
                 {
                     watchTimer = new Timer(OnWatchTimerCallback, null, Timeout.Infinite, Timeout.Infinite);
                     var watcher = new FileSystemWatcher
@@ -82,6 +82,7 @@ namespace StaticSiteGenerator
             Colorizer.WriteLine("[Yellow!Processing...]");
             foreach (var handler in fileHandlers)
                 handler.Process();
+            Colorizer.WriteLine("[Yellow!Completed.]");
         }
 
         private void OnWatchTimerCallback(object state)

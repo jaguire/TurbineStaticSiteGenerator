@@ -6,7 +6,7 @@ using Nano.Web.Core;
 using Nano.Web.Core.Host.HttpListener;
 using OutputColorizer;
 
-namespace StaticSiteGenerator
+namespace Turbine
 {
     public interface IWebServer
     {
@@ -18,14 +18,14 @@ namespace StaticSiteGenerator
         private readonly string baseUrl;
         private readonly NanoConfiguration nano;
 
-        public WebServer(AppSettings appSettings)
+        public WebServer(IAppSettings appSettings)
         {
             var port = GetUnusedPort();
             baseUrl = $"http://localhost:{port}";
             nano = new NanoConfiguration
             {
                 ApplicationName = "Turbine",
-                EnableVerboseErrors = appSettings.Verbose
+                EnableVerboseErrors = appSettings.Verbose,
             };
 
             // logging

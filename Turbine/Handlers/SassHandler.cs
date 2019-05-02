@@ -3,14 +3,14 @@ using System.IO;
 using OutputColorizer;
 using SharpScss;
 
-namespace StaticSiteGenerator.Handlers
+namespace Turbine.Handlers
 {
     public class SassHandler : IFileHandler
     {
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
         private readonly IHandlerUtility util;
 
-        public SassHandler(AppSettings appSettings, IHandlerUtility util)
+        public SassHandler(IAppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
             this.util = util;
@@ -19,7 +19,7 @@ namespace StaticSiteGenerator.Handlers
         public void Process()
         {
             Console.WriteLine("Sass");
-            Colorizer.WriteLine($"  Output Style: [DarkCyan!{appSettings.ScssOutputStyle}]");
+            Colorizer.WriteLine($"  Output Style: [DarkCyan!{appSettings.ScssOutput}]");
 
             // get files
             var inFiles = util.GetFiles("scss", "sass");
@@ -39,7 +39,7 @@ namespace StaticSiteGenerator.Handlers
                     {
                         InputFile = inFile.FullName,
                         OutputFile = outFile.FullName,
-                        OutputStyle = appSettings.ScssOutputStyle
+                        OutputStyle = appSettings.ScssOutput,
                     };
                     var result = Scss.ConvertFileToCss(inFile.FullName, options);
 

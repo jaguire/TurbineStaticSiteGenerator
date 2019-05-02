@@ -4,14 +4,14 @@ using System.Text.RegularExpressions;
 using NUglify;
 using OutputColorizer;
 
-namespace StaticSiteGenerator.Handlers
+namespace Turbine.Handlers
 {
     public class JavascriptHandler : IFileHandler
     {
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
         private readonly IHandlerUtility util;
 
-        public JavascriptHandler(AppSettings appSettings, IHandlerUtility util)
+        public JavascriptHandler(IAppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
             this.util = util;

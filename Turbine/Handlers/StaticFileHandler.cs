@@ -4,14 +4,14 @@ using System.IO;
 using System.Linq;
 using OutputColorizer;
 
-namespace StaticSiteGenerator.Handlers
+namespace Turbine.Handlers
 {
     public class StaticFileHandler : IFileHandler
     {
-        private readonly AppSettings appSettings;
+        private readonly IAppSettings appSettings;
         private readonly IHandlerUtility util;
 
-        public StaticFileHandler(AppSettings appSettings, IHandlerUtility util)
+        public StaticFileHandler(IAppSettings appSettings, IHandlerUtility util)
         {
             this.appSettings = appSettings;
             this.util = util;
@@ -23,7 +23,7 @@ namespace StaticSiteGenerator.Handlers
 
             // get files
             var extensions = new List<string> { "jpg", "jpeg", "gif", "png", "ico", "txt", "xml", "pdf" };
-            extensions.AddRange(appSettings.AdditionalStaticFiles ?? new string[0]);
+            extensions.AddRange(appSettings.AdditionalStaticFiles);
             var inFiles = util.GetFiles(extensions.ToArray());
             inFiles.AddRange(Directory.EnumerateFiles(appSettings.Input, "*.", SearchOption.AllDirectories)
                                       .Where(x => Path.GetFileName(x)?.StartsWith("_") == false)
@@ -40,7 +40,7 @@ namespace StaticSiteGenerator.Handlers
                     // copy
                     var outFile = new FileInfo(inFile.FullName.Replace(appSettings.Input, appSettings.Output));
                     outFile.Directory?.Create();
-                    File.Copy(inFile.FullName, outFile.FullName);
+                    File.Copy(inFile.FullName, outFile.FullName, true);
                 }
                 catch (Exception ex)
                 {
